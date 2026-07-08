@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Minara • Loop Engineering Quant Desk</title>
+    <!-- Google Fonts: Inter for UI, Roboto Mono for logs, Orbitron for trading metrics -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&family=Orbitron:wght@500;700;900&display=swap" rel="stylesheet" />
+  </head>
+  <body>
+    <div id="app" class="dashboard-container">
+      
+      <!-- Top Global Status Bar -->
+      <header class="global-header">
+        <div class="brand">
+          <div class="logo-glow"></div>
+          <span class="logo-text">MINARA</span>
+          <span class="badge neon-emerald">QUANT ENGINE v1.2</span>
+        </div>
+        
+        <!-- Loop Connection Bar -->
+        <div class="loop-status-bar" role="status" aria-label="Global System Latency and Loop Status">
+          <div class="loop-indicator active" id="status-research">
+            <span class="status-dot"></span>
+            <span class="label">Research Loop</span>
+            <span class="val" id="latency-research">14ms</span>
+          </div>
+          <div class="loop-connector active"></div>
+          <div class="loop-indicator active" id="status-strategy">
+            <span class="status-dot"></span>
+            <span class="label">Strategy Studio</span>
+            <span class="val" id="latency-strategy">28ms</span>
+          </div>
+          <div class="loop-connector active"></div>
+          <div class="loop-indicator active" id="status-execution">
+            <span class="status-dot"></span>
+            <span class="label">Execution Loop</span>
+            <span class="val" id="latency-execution">42ms</span>
+          </div>
+          <div class="loop-connector active"></div>
+          <div class="loop-indicator active animate-pulse" id="status-review">
+            <span class="status-dot"></span>
+            <span class="label">Review Loop</span>
+            <span class="val" id="review-pulse">OK</span>
+          </div>
+        </div>
+
+        <div class="header-actions">
+          <button class="btn btn-secondary btn-sm" id="btn-open-docs">📖 Documentation</button>
+          <button class="btn btn-secondary btn-sm" id="btn-reset-demo">Reset Simulation</button>
+        </div>
+      </header>
+
+      <!-- Main Dashboard Grid -->
+      <main class="dashboard-grid">
+        
+        <!-- COLUMN 1: RESEARCH LOOP -->
+        <section class="panel-card" id="panel-research" aria-labelledby="heading-research">
+          <div class="panel-header">
+            <div class="panel-title-wrapper">
+              <span class="step-num">01-04</span>
+              <h2 id="heading-research">Research Loop</h2>
+            </div>
+            <span class="panel-status-text neon-emerald">Idle</span>
+          </div>
+          
+          <div class="panel-content">
+            <!-- Active Data Sources Badge Wall -->
+            <div class="data-sources-container">
+              <span class="data-source-badge connected" id="src-markets">Markets</span>
+              <span class="data-source-badge connected" id="src-onchain">Onchain</span>
+              <span class="data-source-badge connected" id="src-signals">Signals</span>
+              <span class="data-source-badge connected" id="src-derivatives">Derivatives</span>
+              <span class="data-source-badge connected" id="src-predictions">Predictions</span>
+              <span class="data-source-badge connected" id="src-defi">DeFi</span>
+            </div>
+
+            <!-- Chat Container -->
+            <div class="chat-container">
+              <div class="chat-messages" id="chat-messages-box">
+                <div class="message system-message">
+                  <p>Welcome to Minara AI Console. Run research on market segments, asset stats, and macro signals below.</p>
+                </div>
+              </div>
+              
+              <!-- Chat Stream Logging Overlay -->
+              <div class="chat-stream-log hidden" id="chat-stream-log">
+                <div class="spinner"></div>
+                <div class="log-lines" id="chat-log-lines"></div>
+              </div>
+            </div>
+
+            <!-- Suggestion Prompts -->
+            <div class="chat-suggestions">
+              <span class="section-label">Suggested Research Queries:</span>
+              <div class="suggestions-grid">
+                <button class="suggest-btn" data-query-id="bond-market">
+                  <span class="q-icon">📈</span>
+                  <span class="q-txt">Bond Risk appetite for stocks/crypto</span>
+                </button>
+                <button class="suggest-btn" data-query-id="hype-deep">
+                  <span class="q-icon">🔬</span>
+                  <span class="q-txt">Deep-dive $HYPE (Derivatives & Whale moves)</span>
+                </button>
+                <button class="suggest-btn" data-query-id="audit-trades">
+                  <span class="q-icon">🛡️</span>
+                  <span class="q-txt">Audit my trades (Size & Timing leaks)</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- Chat Input Box -->
+            <form class="chat-input-wrapper" id="chat-form">
+              <input type="text" id="chat-input" placeholder="Ask market signals or asset deep-dive..." autocomplete="off" />
+              <button type="submit" class="btn btn-primary" id="btn-chat-send">Ask AI</button>
+            </form>
+
+            <!-- Thesis Output Area (Unlocked after query) -->
+            <div class="thesis-card locked" id="thesis-container">
+              <div class="lock-overlay" id="thesis-lock-overlay">
+                <div class="lock-icon">🔒</div>
+                <p>Run a research query to compile thesis</p>
+              </div>
+              <div class="thesis-header">
+                <h3>Compiled Thesis</h3>
+                <button class="btn btn-emerald btn-xs" id="btn-send-to-studio" disabled>Send to Studio</button>
+              </div>
+              <div class="thesis-body" id="thesis-body-content">
+                <!-- Filled dynamically -->
+              </div>
+            </div>
+
+          </div>
+        </section>
+
+        <!-- COLUMN 2: STRATEGY STUDIO -->
+        <section class="panel-card" id="panel-strategy" aria-labelledby="heading-strategy">
+          <div class="panel-header">
+            <div class="panel-title-wrapper">
+              <span class="step-num">05-08</span>
+              <h2 id="heading-strategy">Strategy Studio</h2>
+            </div>
+            <span class="panel-status-text neon-gold" id="strategy-status">Waiting</span>
+          </div>
+
+          <div class="panel-content">
+            <!-- Strategy Input -->
+            <div class="strategy-input-pane">
+              <label for="strategy-prompt" class="section-label">Strategy Prompts / Rules Definition:</label>
+              <textarea id="strategy-prompt" placeholder="Paste compiled thesis or describe rules here (e.g. $HYPE momentum, 15m, buy volume breakout, target 5%)..."></textarea>
+              
+              <div class="strategy-actions">
+                <div class="select-wrapper">
+                  <select id="strategy-template-select">
+                    <option value="" disabled selected>Select proven template...</option>
+                    <option value="momentum">Momentum Trend-Following</option>
+                    <option value="mean_reversion">Mean-Reversion Exhaustion</option>
+                    <option value="arbitrage">Venues Arbitrage & Funding</option>
+                    <option value="pairs">Pairs Neutral Spread-Trading</option>
+                  </select>
+                </div>
+                <button class="btn btn-secondary" id="btn-run-backtest" disabled>Run Backtest</button>
+              </div>
+            </div>
+
+            <!-- Testing Workspace -->
+            <div class="testing-workspace locked" id="testing-workspace-container">
+              <div class="lock-overlay" id="testing-lock-overlay">
+                <div class="lock-icon">🔒</div>
+                <p>Submit strategy rules to run simulation</p>
+              </div>
+
+              <!-- Tabs: Backtest / Paper Trade -->
+              <div class="tabs-header">
+                <button class="tab-btn active" id="tab-backtest">Backtest Results</button>
+                <button class="tab-btn" id="tab-paper">Live Paper Trading</button>
+              </div>
+
+              <!-- TAB 1: BACKTEST VIEW -->
+              <div class="tab-content-panel active" id="view-backtest">
+                <div class="metrics-grid">
+                  <div class="metric-box">
+                    <span class="m-label">Sharpe Ratio</span>
+                    <span class="m-val neon-emerald" id="stat-sharpe">--</span>
+                  </div>
+                  <div class="metric-box">
+                    <span class="m-label">Max Drawdown</span>
+                    <span class="m-val neon-crimson" id="stat-drawdown">--</span>
+                  </div>
+                  <div class="metric-box">
+                    <span class="m-label">Win Rate</span>
+                    <span class="m-val text-white" id="stat-winrate">--</span>
+                  </div>
+                </div>
+
+                <!-- Backtest SVG Chart -->
+                <div class="chart-container-ui">
+                  <div class="chart-legend">
+                    <span class="leg-item"><span class="leg-dot bg-emerald"></span>PnL Curve</span>
+                    <span class="leg-item"><span class="leg-dot bg-gold"></span>Volatility Cone</span>
+                  </div>
+                  <div class="svg-wrapper" id="svg-chart-wrapper">
+                    <!-- SVG gets inserted dynamically -->
+                    <div class="chart-placeholder">Replaying history...</div>
+                  </div>
+                </div>
+
+                <!-- Heatmap and Leakage Check -->
+                <div class="backtest-footer-metrics">
+                  <div class="heatmap-widget">
+                    <span class="section-label">Symbol Weight Exposure Map</span>
+                    <div class="heatmap-grid" id="heatmap-grid-container">
+                      <!-- 16 squares of exposure -->
+                    </div>
+                  </div>
+                  
+                  <!-- Leakage & Overfit check -->
+                  <div class="verifications-widget">
+                    <span class="section-label">Leakage & Regime Tests</span>
+                    <ul class="test-list">
+                      <li class="test-item" id="chk-leakage"><span class="icon">⌛</span>Data Leakage Check</li>
+                      <li class="test-item" id="chk-oos"><span class="icon">⌛</span>Out-of-Sample Performance</li>
+                      <li class="test-item" id="chk-regime"><span class="icon">⌛</span>Multi-Regime Verification</li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+
+              <!-- TAB 2: PAPER TRADING VIEW -->
+              <div class="tab-content-panel" id="view-paper">
+                <div class="paper-summary">
+                  <div class="summary-stat">
+                    <span>Paper Equity</span>
+                    <strong class="text-white" id="paper-equity">$100,000.00</strong>
+                  </div>
+                  <div class="summary-stat">
+                    <span>Net Profit</span>
+                    <strong class="neon-emerald" id="paper-profit">+$0.00 (0.00%)</strong>
+                  </div>
+                </div>
+
+                <div class="paper-grid">
+                  <!-- Order Book -->
+                  <div class="orderbook-widget">
+                    <span class="section-label">L2 Order Book ($HYPE)</span>
+                    <div class="ob-table">
+                      <div class="ob-header"><span>Price</span><span>Size</span></div>
+                      <div class="ob-list asks" id="ob-asks">
+                        <!-- Asks (red) -->
+                      </div>
+                      <div class="ob-spread" id="ob-spread">Spread: --</div>
+                      <div class="ob-list bids" id="ob-bids">
+                        <!-- Bids (green) -->
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Live Fills -->
+                  <div class="fills-widget">
+                    <span class="section-label">Simulated Fills Log</span>
+                    <div class="fills-list" id="paper-fills-log">
+                      <div class="empty-text">No active orders. Awaiting market entry conditions...</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="studio-deploy-footer">
+                <div class="gate-status" id="validation-gate-status">
+                  <span class="indicator-circle circle-gold"></span>
+                  <span class="txt">Awaiting backtest completion</span>
+                </div>
+                <button class="btn btn-emerald btn-lg" id="btn-promote-to-live" disabled>Promote to Autopilot</button>
+              </div>
+
+            </div>
+          </div>
+        </section>
+
+        <!-- COLUMN 3: EXECUTION LOOP -->
+        <section class="panel-card" id="panel-execution" aria-labelledby="heading-execution">
+          <div class="panel-header">
+            <div class="panel-title-wrapper">
+              <span class="step-num">09-12</span>
+              <h2 id="heading-execution">Execution Loop</h2>
+            </div>
+            <span class="panel-status-text neon-crimson" id="execution-status">Autopilot OFF</span>
+          </div>
+
+          <div class="panel-content">
+            <!-- Autopilot Power Toggle -->
+            <div class="autopilot-control-panel">
+              <div class="control-text">
+                <h3>AUTOPILOT ENGINE</h3>
+                <p>Deterministic rules execution with strict risk guardrails</p>
+              </div>
+              <div class="toggle-switch-wrapper">
+                <button class="toggle-button" id="toggle-autopilot" aria-label="Toggle Autopilot" aria-pressed="false" disabled>
+                  <span class="toggle-thumb"></span>
+                </button>
+              </div>
+            </div>
+
+            <!-- Workflow triggers -->
+            <div class="workflow-config-pane">
+              <span class="section-label">Workflow Automations (Daily Triggers)</span>
+              <div class="workflow-prompts">
+                <div class="workflow-item">
+                  <span class="wf-cron">🕒 30m before open</span>
+                  <span class="wf-task">Extract tickers, set pricing limits, send alerts</span>
+                </div>
+                <div class="workflow-item">
+                  <span class="wf-cron">📈 On price breakout</span>
+                  <span class="wf-task">Verify funding rate bias, size, trigger execution</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Risk Safeguards Panel -->
+            <div class="risk-safeguards-pane">
+              <span class="section-label">Durable Risk Safeguards</span>
+              <div class="risk-controls">
+                
+                <div class="control-row">
+                  <div class="c-info">
+                    <span class="c-title">Hard Leverage Cap</span>
+                    <span class="c-desc">Global margin scaling limits</span>
+                  </div>
+                  <div class="c-widget">
+                    <select class="select-sm" id="risk-leverage-select">
+                      <option value="1">1.0x (Cash only)</option>
+                      <option value="2">2.0x (Conservative)</option>
+                      <option value="5" selected>5.0x (Standard)</option>
+                      <option value="10">10.0x (High Risk)</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div class="control-row">
+                  <div class="c-info">
+                    <span class="c-title">Equity Drawdown Floor</span>
+                    <span class="c-desc">Kill-switch flattening all positions</span>
+                  </div>
+                  <div class="c-widget">
+                    <select class="select-sm" id="risk-drawdown-select">
+                      <option value="2">2% Floor</option>
+                      <option value="5" selected>5% Floor</option>
+                      <option value="10">10% Floor</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div class="control-row">
+                  <div class="c-info">
+                    <span class="c-title">Asset Trading Scope</span>
+                    <span class="c-desc">Authorized tokens for execution</span>
+                  </div>
+                  <div class="c-widget vertical">
+                    <label class="checkbox-label"><input type="checkbox" checked id="asset-sol"/> $SOL</label>
+                    <label class="checkbox-label"><input type="checkbox" checked id="asset-hype"/> $HYPE</label>
+                    <label class="checkbox-label"><input type="checkbox" id="asset-pol"/> $POL</label>
+                  </div>
+                </div>
+
+              </div>
+            </div>
+
+            <!-- Live Execution Feed (Observe, Decide, Act, Verify) -->
+            <div class="execution-feed-widget">
+              <span class="section-label">Real-time Loop Activity Log (5-Beat Cycle)</span>
+              <div class="feed-log" id="execution-feed-log">
+                <div class="empty-text">Autopilot inactive. Turn on engine to route live loops.</div>
+              </div>
+            </div>
+
+          </div>
+        </section>
+
+      </main>
+    </div>
+
+    <!-- Project Documentation Modal -->
+    <div class="docs-modal-overlay hidden" id="docs-modal" role="dialog" aria-modal="true" aria-labelledby="docs-title">
+      <div class="docs-modal-content">
+        <header class="docs-modal-header">
+          <h2 id="docs-title">MINARA SYSTEM DOCUMENTATION</h2>
+          <button class="btn-close" id="btn-close-docs" aria-label="Close Documentation">&times;</button>
+        </header>
+        <div class="docs-modal-body">
+          <!-- Sidebar TOC -->
+          <nav class="docs-sidebar" aria-label="Table of Contents">
+            <button class="docs-nav-link active" data-section="sec-overview">System Overview</button>
+            <button class="docs-nav-link" data-section="sec-paradigm">Loop Engineering Paradigm</button>
+            <button class="docs-nav-link" data-section="sec-anatomy">The 5-Beat Anatomy</button>
+            <button class="docs-nav-link" data-section="sec-loop1">Research Loop (01-04)</button>
+            <button class="docs-nav-link" data-section="sec-loop2">Strategy Studio (05-08)</button>
+            <button class="docs-nav-link" data-section="sec-loop3">Execution Loop (09-12)</button>
+            <button class="docs-nav-link" data-section="sec-risk">Durable Risk Safeguards</button>
+          </nav>
+          
+          <!-- Detailed content sections -->
+          <div class="docs-main-content">
+            
+            <section id="sec-overview" class="docs-section active">
+              <h3>System Overview</h3>
+              <p>Minara is a state-of-the-art autonomous quantitative trading desk built specifically to execute and refine trading strategies without human intervention. Instead of running a sequence of disjointed scripts or relying on manual prompt-response cycles, Minara implements a complete closed-loop architecture where research, strategy development, and risk-checked execution continuously feed into one another.</p>
+              <div class="docs-callout note">
+                <strong>System Goal:</strong> Move investing leverage away from speed or technical chart analysis and toward designing systematic feedback loops that run, backtest, scale, and protect themselves autonomously.
+              </div>
+            </section>
+
+            <section id="sec-paradigm" class="docs-section">
+              <h3>Loop Engineering Paradigm</h3>
+              <p>Historically, software and AI interactions were designed as <strong>"open loops"</strong> (e.g. Chatbots). A human gives a prompt, the system responds, and the interaction ends. The human is the loop, manually verifying, copy-pasting, and making decisions.</p>
+              <p><strong>Loop Engineering</strong> shifts the focus to <strong>"closed loops"</strong>. The AI agent resides within an automated execution harness that continuously reads state, makes decisions, acts, and self-corrects without waiting for human prompts. By structuring these loops with strict verification gates, autonomous execution becomes secure and reliable.</p>
+              <table class="docs-table">
+                <thead>
+                  <tr>
+                    <th>Feature</th>
+                    <th>Prompt Engineering (Chat)</th>
+                    <th>Loop Engineering (Minara)</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td><strong>Execution</strong></td>
+                    <td>One-off manual answers</td>
+                    <td>Recurring automated execution</td>
+                  </tr>
+                  <tr>
+                    <td><strong>Self-Correction</strong></td>
+                    <td>None (relies on human feedback)</td>
+                    <td>Automatic testing & code verification</td>
+                  </tr>
+                  <tr>
+                    <td><strong>Risk Management</strong></td>
+                    <td>Manual review of output</td>
+                    <td>Hard-coded, non-bypassable limits</td>
+                  </tr>
+                </tbody>
+              </table>
+            </section>
+
+            <section id="sec-anatomy" class="docs-section">
+              <h3>The 5-Beat Anatomy of a Loop</h3>
+              <p>Every autonomous loop in Minara follows a deterministic five-beat lifecycle. If any beat fails or fails to verify, the loop halts and alerts the risk layer:</p>
+              <ol class="docs-list">
+                <li><strong>Trigger:</strong> The scheduling or event hook that starts the loop (e.g., U.S. market pre-open, price crossing a threshold, or a cron timer).</li>
+                <li><strong>Observe:</strong> The ingestion stage. The agent pulls multi-domain market data (on-chain flows, order books, funding rate bias, sentiment charts) to establish current state.</li>
+                <li><strong>Decide:</strong> The reasoning stage. The agent evaluates the observed facts against the active thesis parameters, calculating size, direction, and entry limit.</li>
+                <li><strong>Act:</strong> The execution stage. The order is securely routed to the API interface (e.g. Hyperliquid perpetuals margin pools).</li>
+                <li><strong>Verify:</strong> The safety gate. The agent verifies order fill status, checks that Stop-Loss (SL) and Take-Profit (TP) conditions are correctly attached, and audits slippage limits.</li>
+              </ol>
+            </section>
+
+            <section id="sec-loop1" class="docs-section">
+              <h3>Loop 1: Research Loop (Steps 01-04)</h3>
+              <p>The Research Loop acts as the information ingestion engine. It translates macro hunches and raw data feeds into structured investment theses.</p>
+              <h4>Steps Breakdown:</h4>
+              <ul>
+                <li><strong>01. Ask the Market:</strong> Enter targeted questions to extract macro biases. The output is structured JSON-like key/value parameters (e.g., correlation indexes or regime states).</li>
+                <li><strong>02. Deep-dive Assets:</strong> Inspect target tokens across six data domains (Markets, On-chain, Signals, Derivatives, Predictions, and DeFi).</li>
+                <li><strong>03. Audit Trade History:</strong> Evaluate sizing and timing leaks. The AI scans past fills to identify psychological leaks (e.g., buying too large, trading during low-liquidity periods).</li>
+                <li><strong>04. Thesis Compilation:</strong> Consolidate the findings into a formalized, machine-readable strategy specification.</li>
+              </ul>
+            </section>
+
+            <section id="sec-loop2" class="docs-section">
+              <h3>Loop 2: Strategy Studio (Steps 05-08)</h3>
+              <p>The Strategy Studio takes the compiled research thesis and translates it into formal risk-model rules that can be backtested and paper traded.</p>
+              <h4>Steps Breakdown:</h4>
+              <ul>
+                <li><strong>05. Rule Definition:</strong> Convert plain-text rules or templates into structured entry and exit scripts.</li>
+                <li><strong>06. Template Selection:</strong> Start from proven templates including Momentum, Mean-reversion, Arbitrage, or Cointegrated Pairs.</li>
+                <li><strong>07. Premium Backtesting:</strong> Replay the strategy against years of tick-level data, incorporating execution slippage, exchange fees, and funding rate borrow skews.</li>
+                <li><strong>08. Paper Trading Verification:</strong> Run the strategy against live market feeds using simulated balance sheets before deploying real capital.</li>
+              </ul>
+              <div class="docs-callout warning">
+                <strong>Leakage Test Gate:</strong> Backtests must clear out-of-sample data leakage checks before the system enables the live promotion path.
+              </div>
+            </section>
+
+            <section id="sec-loop3" class="docs-section">
+              <h3>Loop 3: Execution Loop (Steps 09-12)</h3>
+              <p>The Execution Loop acts as the hands-off engine that manages live orders, monitors active risk limits, and reports back P&L outcomes.</p>
+              <h4>Steps Breakdown:</h4>
+              <ul>
+                <li><strong>09. Workflow Scheduling:</strong> Create triggers to automate recurring tasks (e.g., run pre-open reports daily, check volume anomalies hourly).</li>
+                <li><strong>10. Alert-Only Dry Runs:</strong> Let the loop watch and alert without execution permission to verify edge cases.</li>
+                <li><strong>11. Autopilot Engagement:</strong> Empower the engine to route trades directly to decentralized or centralized pools using strict API hooks.</li>
+                <li><strong>12. Compounding & Review:</strong> Close the loop by feeding execution metrics back into the Research Loop to refine strategy parameters.</li>
+              </ul>
+            </section>
+
+            <section id="sec-risk" class="docs-section">
+              <h3>Durable Risk Safeguards</h3>
+              <p>Autonomous trading is only safe if risk boundaries cannot be bypassed by the AI itself. Minara implements four non-negotiable hard-coded rules at the contract/API connection level:</p>
+              <ul>
+                <li><strong>Leverage Limits:</strong> Globally enforced margin multipliers (e.g., 5.0x max) that scale down orders if leverage exceeds boundaries.</li>
+                <li><strong>Equity Drawdown Kill-switch:</strong> If total account equity drops by the defined threshold (e.g. 5% floor) from high-water mark, all open positions are flattened immediately and Autopilot disables itself.</li>
+                <li><strong>Asset Scope Restriction:</strong> The engine is whitelisted to trade only specific tokens ($SOL, $HYPE) and will ignore all other markets.</li>
+                <li><strong>Mandatory Stop-Loss & Take-Profit:</strong> Orders cannot exist on-exchange without attached exit limits.</li>
+              </ul>
+            </section>
+
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>
